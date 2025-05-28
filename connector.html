@@ -8,7 +8,22 @@
             var myConnector = tableau.makeConnector();
 
             myConnector.getSchema = function(schemaCallback) {
-                schemaCallback([]);
+                // Create table schema
+                var cols = [
+                    {id: "id", dataType: tableau.dataTypeEnum.string},
+                    {id: "start", dataType: tableau.dataTypeEnum.datetime},
+                    {id: "end", dataType: tableau.dataTypeEnum.datetime},
+                    {id: "today", dataType: tableau.dataTypeEnum.datetime}
+                    // Add more columns based on your Kobo form
+                ];
+                
+                var tableSchema = {
+                    id: "koboData",
+                    alias: "Kobo Toolbox Data",
+                    columns: cols
+                };
+                
+                schemaCallback([tableSchema]);
             };
 
             myConnector.getData = function(table, doneCallback) {
@@ -18,32 +33,24 @@
                     const rows = csvData.split('\n');
                     const headers = rows[0].split(',');
                     
-                    const tableData = rows.slice(1).map(row => {
-                        const values = row.split(',');
-                        return headers.reduce((obj, header, i) => {
-                            obj[header] = values[i];
-                            return obj;
-                        }, {});
-                    });
+                    const tableData = [];
+                    for (let i = 1; i < rows.length; i++) {
+                        if (rows[i].trim() === '') continue;
+                        
+                        const values = rows[i].split(',');
+                        const rowData = {};
+                        
+                        headers.forEach((header, index) => {
+                            // Clean header names
+                            const cleanHeader = header.trim().replace(/"/g, '');
+                            rowData[cleanHeader] = values[index] ? values[index].trim().replace(/"/g, '') : '';
+                        });
+                        
+                        tableData.push(rowData);
+                    }
                     
                     table.appendRows(tableData);
                     doneCallback();
-                });
-            };
-
-            tableau.registerConnector(myConnector);
-            
-            document.addEventListener('DOMContentLoaded', function() {
-                document.getElementById('submitButton').addEventListener('click', function() {
-                    tableau.connectionName = "Kobo Toolbox Data";
-                    tableau.submit();
-                });
-            });
-        })();
-    </script>
-</head>
-<body>
-    <h1>Kobo Toolbox Data Connector</h1>
-    <button id="submitButton">Load Kobo Data</button>
-</body>
-</html>
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
