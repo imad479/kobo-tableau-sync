@@ -37,3 +37,4 @@ try:
 
 except Exception as e:
     logging.exception("An error occurred:")
+  df.to_csv('C:/Users/HP/Documents/kobo-tableau-sync/kobo_data.csv', index=False)
