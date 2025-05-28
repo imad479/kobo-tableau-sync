@@ -1,3 +1,6 @@
+import os
+print(f"Current working directory: {os.getcwd()}")
+print(f"Absolute path to CSV: {os.path.abspath('kobo_data.csv')}")
 import requests
 import pandas as pd
 import os
