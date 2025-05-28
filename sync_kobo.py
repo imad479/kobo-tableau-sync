@@ -9,6 +9,14 @@ import logging
 # Setup logging
 logging.basicConfig(filename='kobo_sync.log', level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
+import os
+try:
+    with open('permission_test.txt', 'w') as f:
+        f.write("Testing permissions")
+    print("File created successfully!")
+    os.remove('permission_test.txt')
+except Exception as e:
+    print(f"Permission error: {str(e)}")
 
 try:
     # KoboToolbox API settings
