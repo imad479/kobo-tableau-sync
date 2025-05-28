@@ -8,30 +8,39 @@
             var myConnector = tableau.makeConnector();
 
             myConnector.getSchema = function(schemaCallback) {
-                // Tableau will auto-detect schema from CSV
                 schemaCallback([]);
             };
 
             myConnector.getData = function(table, doneCallback) {
-                $.get("https://raw.githubusercontent.com/imad479/kobo-tableau-sync/main/kobo_data.csv")
-                    .done(function(csvData) {
-                        table.appendRows($.csv.toObjects(csvData));
-                        doneCallback();
+                fetch("https://raw.githubusercontent.com/imad479/kobo-tableau-sync/main/kobo_data.csv")
+                .then(response => response.text())
+                .then(csvData => {
+                    const rows = csvData.split('\n');
+                    const headers = rows[0].split(',');
+                    
+                    const tableData = rows.slice(1).map(row => {
+                        const values = row.split(',');
+                        return headers.reduce((obj, header, i) => {
+                            obj[header] = values[i];
+                            return obj;
+                        }, {});
                     });
+                    
+                    table.appendRows(tableData);
+                    doneCallback();
+                });
             };
 
             tableau.registerConnector(myConnector);
             
-            $(document).ready(function() {
-                $("#submitButton").click(function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('submitButton').addEventListener('click', function() {
                     tableau.connectionName = "Kobo Toolbox Data";
                     tableau.submit();
                 });
             });
         })();
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
 </head>
 <body>
     <h1>Kobo Toolbox Data Connector</h1>
