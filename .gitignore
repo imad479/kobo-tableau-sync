@@ -172,3 +172,16 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+# Python
+venv/
+*.pyc
+__pycache__/
+
+# Tableau
+*.twb
+*.twbx
+*.tde
+
+# IDE
+.vscode/
+.idea/
