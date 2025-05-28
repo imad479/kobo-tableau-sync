@@ -1,59 +1,35 @@
-import os
-print(f"Current working directory: {os.getcwd()}")
-print(f"Absolute path to CSV: {os.path.abspath('kobo_data.csv')}")
 import requests
 import pandas as pd
 import os
-import logging
+import sys
 
-# Setup logging
-logging.basicConfig(filename='kobo_sync.log', level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-import os
-try:
-    with open('permission_test.txt', 'w') as f:
-        f.write("Testing permissions")
-    print("File created successfully!")
-    os.remove('permission_test.txt')
-except Exception as e:
-    print(f"Permission error: {str(e)}")
+# ======== REPLACE THESE VALUES ========
+ASSET_ID = "awsrgDXSJeyN6GDn8U2Qmm"  # e.g. "aBc123dEf456gHi789jKl"
+API_TOKEN = os.environ.get("edac13bbcd3ba6d893c5881597e740a338e2ca1a")  # Set in GitHub Secrets
+# ======================================
 
-try:
-    # KoboToolbox API settings
-    API_TOKEN = os.environ.get(edac13bbcd3ba6d893c5881597e740a338e2ca1a)
-    ASSET_ID = "awsrgDXSJeyN6GDn8U2Qmm"  # REPLACE WITH YOUR ACTUAL ASSET ID
-    KOBO_URL = f"https://kf.kobotoolbox.org/api/v2/assets/{ASSET_ID}/data.json"
-    
-    logging.info(f"API Token: {API_TOKEN[:5]}...")  # Log first 5 chars
-    logging.info(f"API URL: {KOBO_URL}")
-    
-    # Fetch data from KoboToolbox
-    headers = {'Authorization': f'Token {API_TOKEN}'}
-    response = requests.get(KOBO_URL, headers=headers)
-    
-    logging.info(f"Status Code: {response.status_code}")
-    
-    if response.status_code == 200:
-        data = response.json().get('results', [])
-        logging.info(f"Received {len(data)} records")
+def main():
+    try:
+        # 1. Fetch data from Kobo Toolbox
+        url = f"https://kf.kobotoolbox.org/api/v2/assets/{ASSET_ID}/data.json"
+        headers = {"Authorization": f"Token {API_TOKEN}"}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise error for bad status
         
-        if data:
-            df = pd.json_normalize(data)
-            df.to_csv('kobo_data.csv', index=False)
-            logging.info("CSV file created successfully")
-        else:
-            logging.warning("No data received from API")
-    else:
-        logging.error(f"API Error: {response.text[:200]}")
+        # 2. Process data
+        data = response.json().get("results", [])
+        if not data:
+            print("No data received from Kobo")
+            return
+            
+        # 3. Convert to CSV
+        df = pd.json_normalize(data)
+        df.to_csv("kobo_data.csv", index=False)
+        print(f"Success! Created CSV with {len(df)} records")
+        
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        sys.exit(1)  # Fail the workflow
 
-except Exception as e:
-    logging.exception("An error occurred:")
-  # Test file creation
-with open('test_file.txt', 'w') as f:
-    f.write("This is a test file!")
-print("Test file created!")
-  # Replace your df.to_csv line with:
-project_root = os.path.dirname(os.path.abspath(__file__))
-csv_path = os.path.join(project_root, 'kobo_data.csv')
-df.to_csv(csv_path, index=False)
-print(f"Saved CSV to: {csv_path}")
+if __name__ == "__main__":
+    main()
