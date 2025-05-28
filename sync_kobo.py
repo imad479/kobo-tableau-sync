@@ -40,4 +40,8 @@ try:
 
 except Exception as e:
     logging.exception("An error occurred:")
+  # Test file creation
+with open('test_file.txt', 'w') as f:
+    f.write("This is a test file!")
+print("Test file created!")
   df.to_csv('C:/Users/HP/Documents/kobo-tableau-sync/kobo_data.csv', index=False)
