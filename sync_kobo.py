@@ -44,4 +44,8 @@ except Exception as e:
 with open('test_file.txt', 'w') as f:
     f.write("This is a test file!")
 print("Test file created!")
-  df.to_csv('C:/Users/HP/Documents/kobo-tableau-sync/kobo_data.csv', index=False)
+  # Replace your df.to_csv line with:
+project_root = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(project_root, 'kobo_data.csv')
+df.to_csv(csv_path, index=False)
+print(f"Saved CSV to: {csv_path}")
