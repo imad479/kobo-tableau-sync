@@ -10,3 +10,4 @@ Automated pipeline that syncs Kobo data to GitHub for Tableau Public.
 ## Connect Tableau
 Use this URL:  
 `https://raw.githubusercontent.com/imad479/kobo-tableau-sync/main/kobo_data.csv`
+[![Download Data](https://img.shields.io/badge/Download-Data-green)](https://raw.githubusercontent.com/your-username/kobo-repo/main/data/kobo_data.csv)
